@@ -67,37 +67,72 @@
             opacity: 0;
             transition: opacity 0.5s ease-out;
         }
+        
+        /* Estilos para la galería de cartas */
+        .gallery-card {
+            position: absolute;
+            width: 200px;
+            height: 150px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gallery-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+        
+        .gallery-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
+        .gallery-card.stacked {
+            transform: rotate(var(--rotation)) translateX(var(--offset-x)) translateY(var(--offset-y));
+        }
+        
+        .gallery-card.expanded {
+            transform: scale(2) translateX(0) translateY(0) rotate(0deg);
+            z-index: 1000;
+        }
+        
+        .gallery-card.hidden-card {
+            opacity: 0;
+            transform: scale(0.8) rotate(15deg);
+        }
+        
+        /* Modal para agregar fotos */
+        .photo-modal {
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
 <body class="bg-black text-white min-h-screen">
-
     <!-- Pantalla de Carga -->
     <div id="loadingScreen" class="loading-screen">
-        <!-- Logo más grande: w-40 h-40 -->
-        <img src="https://i.postimg.cc/Nf8gF53n/Photoroom-. .png" alt="Logo Iglesia" class="w-44 h-44 mb-6" onerror="this.src=''; this.alt='Logo no disponible'; this.style.display='none';">
-        <h1 class="text-3xl font-bold mb-2">SEMILLA</h1>
+        <img src="https://i.postimg.cc/Nf8gF53n/Photoroom-. .png" alt="Logo Iglesia" class="w-32 h-32 mb-6" onerror="this.src=''; this.alt='Logo no disponible'; this.style.display='none';">
+        <h1 class="text-3xl font-bold mb-2">IGLESIA CRISTIANA</h1>
         <p class="text-gray-400 text-lg mb-8">Cargando sistema...</p>
         <div class="loading-bar">
             <div class="loading-progress"></div>
         </div>
         <p class="text-gray-500 text-sm mt-4">Por favor espera un momento</p>
     </div>
-
     <!-- Header -->
     <header class="border-b border-gray-800">
         <div class="max-w-7xl mx-auto px-6 py-8">
             <div class="flex items-center justify-center space-x-4">
-                <!-- Logo más grande: w-40 h-40 -->
-                <img src="https://i.postimg.cc/Nf8gF53n/Photoroom-. .png" alt="Logo Iglesia" class="w-44 h-44 rounded-lg" onerror="this.src=''; this.alt='Logo no disponible'; this.style.display='none';">
-
-                <!-- Fallback por si falla el logo -->
-                <div class="w-24 h-24 bg-white text-black rounded-lg flex items-center justify-center" id="fallbackLogo" style="display: none;">
+                <img src="https://i.postimg.cc/Nf8gF53n/Photoroom-. .png" alt="Logo Iglesia" class="w-16 h-16 rounded-lg" onerror="this.src=''; this.alt='Logo no disponible'; this.style.display='none';">
+                <div class="w-16 h-16 bg-white text-black rounded-lg flex items-center justify-center" id="fallbackLogo" style="display: none;">
                     <span class="font-bold text-2xl">I</span>
                 </div>
-
-                <!-- Título -->
                 <div class="text-center">
-                    <h1 class="text-4xl font-bold">SEMILLA TECAMAC</h1>
+                    <h1 class="text-4xl font-bold">IGLESIA CRISTIANA</h1>
                     <p class="text-xl text-gray-400 mt-2">Sistema de Gestión de Células</p>
                 </div>
             </div>
@@ -200,6 +235,94 @@
             </div>
         </section>
 
+        <!-- Registro de Miembros -->
+        <section class="py-20">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Registro de Miembros</h2>
+                <p class="text-lg text-gray-400">Únete a una célula de crecimiento espiritual</p>
+            </div>
+            
+            <div class="max-w-2xl mx-auto mb-20">
+                <!-- Botón inicial -->
+                <div id="registerButton" class="bg-gray-900 rounded-xl p-12 text-center">
+                    <div class="w-20 h-20 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-3xl font-bold">👤</span>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-4">Ingresar Datos</h3>
+                    <p class="text-gray-400 text-lg mb-8">Haz clic para registrarte en una célula</p>
+                    <button id="showFormBtn" class="bg-white text-black py-4 px-8 rounded-lg text-xl font-bold hover:bg-gray-200 transition-all">
+                        Registrarse
+                    </button>
+                </div>
+                
+                <!-- Formulario oculto -->
+                <div id="registerForm" class="hidden bg-gray-900 rounded-xl p-12">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-6">
+                            <span class="text-3xl font-bold">📝</span>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-4">Completa tu Información</h3>
+                        <p class="text-gray-400 text-lg">Llena todos los campos para unirte a una célula</p>
+                    </div>
+                    
+                    <form id="memberForm" class="space-y-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-white text-lg font-medium mb-3">Nombre Completo</label>
+                                <input type="text" id="memberName" class="w-full bg-black border-2 border-gray-700 text-white py-4 px-6 rounded-lg text-lg" placeholder="Ej: Juan Pérez" required>
+                            </div>
+                            <div>
+                                <label class="block text-white text-lg font-medium mb-3">Teléfono</label>
+                                <input type="tel" id="memberPhone" class="w-full bg-black border-2 border-gray-700 text-white py-4 px-6 rounded-lg text-lg" placeholder="Ej: +57 300 123 4567" required>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white text-lg font-medium mb-3">Dirección</label>
+                            <input type="text" id="memberAddress" class="w-full bg-black border-2 border-gray-700 text-white py-4 px-6 rounded-lg text-lg" placeholder="Ej: Calle 123 #45-67, Barrio Centro" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white text-lg font-medium mb-3">¿En qué área te gustaría servir?</label>
+                            <select id="memberService" class="w-full bg-black border-2 border-gray-700 text-white py-4 px-6 rounded-lg text-lg" required>
+                                <option value="">Seleccionar área de servicio...</option>
+                                <option value="Congregante">Congregante</option>
+                                <option value="Alabanza y Adoración">Alabanza y Adoración</option>
+                                <option value="Enseñanza Bíblica">Enseñanza Bíblica</option>
+                                <option value="Evangelismo">Evangelismo</option>
+                                <option value="Intercesión">Intercesión</option>
+                                <option value="Ministerio Infantil">Ministerio Infantil</option>
+                                <option value="Ministerio Juvenil">Ministerio Juvenil</option>
+                                <option value="Servicio Social">Servicio Social</option>
+                                <option value="Administración">Administración</option>
+                                <option value="Tecnología">Tecnología</option>
+                                <option value="Hospitalidad">Hospitalidad</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-white text-lg font-medium mb-3">Seleccionar Célula</label>
+                            <select id="memberCell" class="w-full bg-black border-2 border-gray-700 text-white py-4 px-6 rounded-lg text-lg" required>
+                                <option value="">Seleccionar célula...</option>
+                                <option value="jovenes">Célula Jóvenes</option>
+                                <option value="familias">Célula Familias</option>
+                                <option value="adultos">Célula Adultos</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex space-x-4">
+                            <button type="submit" class="flex-1 bg-white text-black py-4 px-8 rounded-lg text-xl font-bold hover:bg-gray-200 transition-all">
+                                Registrar en Célula
+                            </button>
+                            <button type="button" id="cancelRegister" class="flex-1 bg-gray-700 text-white py-4 px-8 rounded-lg text-xl font-bold hover:bg-gray-600 transition-all">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
         <!-- Gestión de Células -->
         <section class="py-20">
             <div class="text-center mb-16">
@@ -282,6 +405,18 @@
                     <label class="block text-white text-lg font-medium mb-3">Contraseña</label>
                     <input type="password" id="cellPassword" class="w-full bg-black border-2 border-gray-700 text-white py-4 px-6 rounded-lg text-lg" placeholder="••••••••" required>
                 </div>
+                <div>
+                    <label class="block text-white text-lg font-medium mb-3">Líder de la Célula</label>
+                    <input type="text" id="cellLeader" class="w-full bg-black border-2 border-gray-700 text-white py-4 px-6 rounded-lg text-lg" placeholder="Ej: Pastor Juan Pérez" required>
+                </div>
+                <div>
+                    <label class="block text-white text-lg font-medium mb-3">Horario de Reunión</label>
+                    <input type="text" id="cellSchedule" class="w-full bg-black border-2 border-gray-700 text-white py-4 px-6 rounded-lg text-lg" placeholder="Ej: Miércoles 7:00 PM" required>
+                </div>
+                <div>
+                    <label class="block text-white text-lg font-medium mb-3">Ubicación</label>
+                    <input type="text" id="cellLocation" class="w-full bg-black border-2 border-gray-700 text-white py-4 px-6 rounded-lg text-lg" placeholder="Ej: Calle Principal #123" required>
+                </div>
                 
                 <div class="flex space-x-4 pt-4">
                     <button type="submit" class="flex-1 bg-white text-black py-4 px-6 rounded-lg text-lg font-bold hover:bg-gray-200 transition-all">
@@ -328,6 +463,43 @@
         </div>
     </div>
 
+    <!-- Modal Agregar Foto -->
+    <div id="addPhotoModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-6 z-50 photo-modal">
+        <div class="bg-gray-900 rounded-xl p-8 max-w-lg w-full border-2 border-gray-700">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl font-bold">📸</span>
+                </div>
+                <h3 class="text-3xl font-bold mb-2">Agregar Nueva Foto</h3>
+                <p class="text-gray-400">Añade una imagen a la galería de la célula</p>
+            </div>
+            
+            <form id="addPhotoForm" class="space-y-6">
+                <div>
+                    <label class="block text-white text-lg font-medium mb-3">URL de la Imagen</label>
+                    <input type="url" id="photoUrl" class="w-full bg-black border-2 border-gray-700 text-white py-4 px-6 rounded-lg text-lg" placeholder="https://ejemplo.com/imagen.jpg" required>
+                </div>
+                <div>
+                    <label class="block text-white text-lg font-medium mb-3">Título de la Foto</label>
+                    <input type="text" id="photoTitle" class="w-full bg-black border-2 border-gray-700 text-white py-4 px-6 rounded-lg text-lg" placeholder="Ej: Reunión de Oración" required>
+                </div>
+                <div>
+                    <label class="block text-white text-lg font-medium mb-3">Descripción</label>
+                    <textarea id="photoDescription" rows="3" class="w-full bg-black border-2 border-gray-700 text-white py-4 px-6 rounded-lg text-lg" placeholder="Describe el momento capturado..."></textarea>
+                </div>
+                
+                <div class="flex space-x-4 pt-4">
+                    <button type="submit" class="flex-1 bg-white text-black py-4 px-6 rounded-lg text-lg font-bold hover:bg-gray-200 transition-all">
+                        Agregar Foto
+                    </button>
+                    <button type="button" id="cancelAddPhoto" class="flex-1 bg-gray-700 text-white py-4 px-6 rounded-lg text-lg font-bold hover:bg-gray-600 transition-all">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Vista de Célula -->
     <div id="cellView" class="hidden fixed inset-0 bg-black overflow-y-auto z-50">
         <div class="min-h-screen">
@@ -336,12 +508,13 @@
                 <div class="max-w-7xl mx-auto px-6 py-8">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center space-x-4">
-                            <div class="w-16 h-16 bg-white text-black rounded-lg flex items-center justify-center">
+                            <img src="https://i.postimg.cc/Nf8gF53n/Photoroom-. .png" alt="Logo Iglesia" class="w-16 h-16 rounded-lg" onerror="this.src=''; this.alt='Logo no disponible'; this.style.display='none';">
+                            <div class="w-16 h-16 bg-white text-black rounded-lg flex items-center justify-center" style="display: none;">
                                 <span class="font-bold text-2xl">C</span>
                             </div>
                             <div>
                                 <h2 id="cellTitle" class="text-3xl font-bold"></h2>
-                                <p class="text-gray-400 text-lg">Panel de Administración</p>
+                                <p class="text-gray-400 text-lg">IGLESIA CRISTIANA - Panel de Administración</p>
                             </div>
                         </div>
                         <button id="closeCell" class="bg-gray-700 text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-gray-600 transition-all">
@@ -353,10 +526,35 @@
             
             <!-- Contenido de la célula -->
             <main class="max-w-7xl mx-auto px-6 py-16">
-                <div class="grid lg:grid-cols-2 gap-12">
-                    <!-- Información -->
+                <!-- Estadísticas rápidas -->
+                <div class="grid lg:grid-cols-4 gap-6 mb-16">
+                    <div class="bg-gray-900 rounded-xl p-6 text-center border-l-4 border-white">
+                        <div id="totalMembers" class="text-3xl font-bold text-white mb-2">0</div>
+                        <div class="text-gray-400">Miembros Activos</div>
+                    </div>
+                    <div class="bg-gray-900 rounded-xl p-6 text-center border-l-4 border-green-500">
+                        <div id="totalMeetings" class="text-3xl font-bold text-green-500 mb-2">0</div>
+                        <div class="text-gray-400">Reuniones Este Mes</div>
+                    </div>
+                    <div class="bg-gray-900 rounded-xl p-6 text-center border-l-4 border-blue-500">
+                        <div id="newVisitors" class="text-3xl font-bold text-blue-500 mb-2">0</div>
+                        <div class="text-gray-400">Nuevos Visitantes</div>
+                    </div>
+                    <div class="bg-gray-900 rounded-xl p-6 text-center border-l-4 border-yellow-500">
+                        <div id="attendance" class="text-3xl font-bold text-yellow-500 mb-2">0%</div>
+                        <div class="text-gray-400">Asistencia Promedio</div>
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-12 mb-16">
+                    <!-- Información General -->
                     <div class="bg-gray-900 rounded-xl p-8">
-                        <h3 class="text-2xl font-bold mb-8 text-center">Información General</h3>
+                        <div class="flex items-center mb-8">
+                            <div class="w-12 h-12 bg-white text-black rounded-lg flex items-center justify-center mr-4">
+                                <span class="text-xl font-bold">ℹ</span>
+                            </div>
+                            <h3 class="text-2xl font-bold">Información General</h3>
+                        </div>
                         <div class="space-y-6">
                             <div class="flex justify-between items-center py-4 border-b border-gray-700">
                                 <span class="text-gray-400 text-lg">Líder:</span>
@@ -371,20 +569,122 @@
                                 <span class="text-white font-bold text-lg">Calle Principal #123</span>
                             </div>
                             <div class="flex justify-between items-center py-4">
-                                <span class="text-gray-400 text-lg">Miembros:</span>
-                                <span class="text-white font-bold text-xl">15 personas</span>
+                                <span class="text-gray-400 text-lg">Próxima Reunión:</span>
+                                <span class="text-white font-bold text-lg">Miércoles 15 Enero</span>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Galería de la célula -->
+                    <!-- Notas y Anuncios -->
                     <div class="bg-gray-900 rounded-xl p-8">
-                        <h3 class="text-2xl font-bold mb-8 text-center">Galería de la Célula</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <img src="https://via.placeholder.com/200x150/333333/FFFFFF?text=Reunión+1" alt="Foto 1" class="w-full h-32 object-cover rounded-lg">
-                            <img src="https://via.placeholder.com/200x150/444444/FFFFFF?text=Reunión+2" alt="Foto 2" class="w-full h-32 object-cover rounded-lg">
-                            <img src="https://via.placeholder.com/200x150/555555/FFFFFF?text=Reunión+3" alt="Foto 3" class="w-full h-32 object-cover rounded-lg">
-                            <img src="https://via.placeholder.com/200x150/666666/FFFFFF?text=Reunión+4" alt="Foto 4" class="w-full h-32 object-cover rounded-lg">
+                        <div class="flex items-center mb-8">
+                            <div class="w-12 h-12 bg-white text-black rounded-lg flex items-center justify-center mr-4">
+                                <span class="text-xl font-bold">📝</span>
+                            </div>
+                            <h3 class="text-2xl font-bold">Notas y Anuncios</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-black rounded-lg p-4 border-l-4 border-blue-500">
+                                <h4 class="font-bold text-blue-400 mb-2">Próximo Evento</h4>
+                                <p class="text-gray-300">Retiro espiritual el próximo fin de semana. Confirmar asistencia.</p>
+                            </div>
+                            <div class="bg-black rounded-lg p-4 border-l-4 border-green-500">
+                                <h4 class="font-bold text-green-400 mb-2">Oración Especial</h4>
+                                <p class="text-gray-300">Oraremos por la familia Rodríguez en la próxima reunión.</p>
+                            </div>
+                            <div class="bg-black rounded-lg p-4 border-l-4 border-yellow-500">
+                                <h4 class="font-bold text-yellow-400 mb-2">Recordatorio</h4>
+                                <p class="text-gray-300">Traer Biblia y cuaderno para el estudio de esta semana.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de Comunicación -->
+                <div class="grid lg:grid-cols-2 gap-12 mb-16">
+                    <!-- Enviar Mensaje -->
+                    <div class="bg-gray-900 rounded-xl p-8">
+                        <div class="flex items-center mb-8">
+                            <div class="w-12 h-12 bg-white text-black rounded-lg flex items-center justify-center mr-4">
+                                <span class="text-xl font-bold">💬</span>
+                            </div>
+                            <h3 class="text-2xl font-bold">Enviar Mensaje al Grupo</h3>
+                        </div>
+                        <form id="messageForm" class="space-y-6">
+                            <div>
+                                <label class="block text-white text-lg font-medium mb-3">Asunto</label>
+                                <input type="text" id="messageSubject" class="w-full bg-black border-2 border-gray-700 text-white py-3 px-4 rounded-lg" placeholder="Ej: Recordatorio de reunión" required>
+                            </div>
+                            <div>
+                                <label class="block text-white text-lg font-medium mb-3">Mensaje</label>
+                                <textarea id="messageContent" rows="4" class="w-full bg-black border-2 border-gray-700 text-white py-3 px-4 rounded-lg" placeholder="Escribe tu mensaje aquí..." required></textarea>
+                            </div>
+                            <div class="bg-blue-900 border border-blue-700 rounded-lg p-4">
+                                <div class="flex items-center mb-2">
+                                    <span class="text-blue-400 mr-2">ℹ️</span>
+                                    <span class="text-blue-300 font-medium">¿Cómo funciona el envío?</span>
+                                </div>
+                                <p class="text-blue-200 text-sm">
+                                    Este mensaje se enviará por WhatsApp a todos los miembros registrados en la célula. 
+                                    El sistema generará automáticamente los enlaces para enviar el mensaje a cada contacto.
+                                </p>
+                            </div>
+                            <button type="submit" class="w-full bg-white text-black py-3 px-6 rounded-lg text-lg font-bold hover:bg-gray-200 transition-all">
+                                📱 Enviar por WhatsApp
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Lista de Miembros -->
+                    <div class="bg-gray-900 rounded-xl p-8">
+                        <div class="flex items-center mb-8">
+                            <div class="w-12 h-12 bg-white text-black rounded-lg flex items-center justify-center mr-4">
+                                <span class="text-xl font-bold">👥</span>
+                            </div>
+                            <h3 class="text-2xl font-bold">Miembros de la Célula</h3>
+                        </div>
+                        <div id="membersList" class="space-y-4 max-h-80 overflow-y-auto">
+                            <div class="text-center py-8">
+                                <div class="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <span class="text-2xl">👥</span>
+                                </div>
+                                <p class="text-gray-400 text-lg">No hay miembros registrados aún</p>
+                                <p class="text-gray-500 text-sm mt-2">Los nuevos miembros aparecerán aquí cuando se registren</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Galería de Fotos -->
+                <div class="bg-gray-900 rounded-xl p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-white text-black rounded-lg flex items-center justify-center mr-4">
+                                <span class="text-xl font-bold">📸</span>
+                            </div>
+                            <h3 class="text-2xl font-bold">Galería de la Célula</h3>
+                        </div>
+                        <button id="addPhotoBtn" class="bg-white text-black px-6 py-3 rounded-lg font-bold hover:bg-gray-200 transition-all">
+                            + Agregar Foto
+                        </button>
+                    </div>
+                    
+                    <!-- Contenedor de la galería con animaciones -->
+                    <div id="galleryContainer" class="relative min-h-96">
+                        <!-- Las imágenes se generan dinámicamente -->
+                    </div>
+                    
+                    <!-- Vista expandida -->
+                    <div id="expandedView" class="hidden fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-6">
+                        <div class="relative max-w-4xl max-h-full">
+                            <img id="expandedImage" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg">
+                            <button id="closeExpanded" class="absolute top-4 right-4 bg-white text-black w-12 h-12 rounded-full font-bold text-xl hover:bg-gray-200 transition-all">
+                                ×
+                            </button>
+                            <div id="expandedInfo" class="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white p-4 rounded-lg">
+                                <h4 class="font-bold text-lg mb-2"></h4>
+                                <p class="text-gray-300"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -397,10 +697,76 @@
         let currentSlide = 0;
         const totalSlides = 4;
         let cells = [
-            { name: 'Célula Jóvenes', user: 'jovenes', password: '123' },
-            { name: 'Célula Familias', user: 'familias', password: '123' },
-            { name: 'Célula Adultos', user: 'adultos', password: '123' }
+            { 
+                name: 'Célula Jóvenes', 
+                user: 'jovenes', 
+                password: '123',
+                leader: 'Pastor Carlos Mendoza',
+                schedule: 'Viernes 7:30 PM',
+                location: 'Avenida Juventud #456',
+                nextMeeting: 'Viernes 17 Enero'
+            },
+            { 
+                name: 'Célula Familias', 
+                user: 'familias', 
+                password: '123',
+                leader: 'Pastora María González',
+                schedule: 'Sábados 6:00 PM',
+                location: 'Calle Familiar #789',
+                nextMeeting: 'Sábado 18 Enero'
+            },
+            { 
+                name: 'Célula Adultos', 
+                user: 'adultos', 
+                password: '123',
+                leader: 'Pastor Juan Pérez',
+                schedule: 'Miércoles 7:00 PM',
+                location: 'Calle Principal #123',
+                nextMeeting: 'Miércoles 15 Enero'
+            }
         ];
+        
+        // Base de datos de miembros por célula
+        let cellMembers = {
+            jovenes: [],
+            familias: [],
+            adultos: []
+        };
+        
+        // Variables para la galería
+        let galleryPhotos = [
+            {
+                url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400',
+                title: 'Reunión Semanal',
+                description: 'Nuestro encuentro semanal de oración y estudio bíblico'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+                title: 'Estudio Bíblico',
+                description: 'Profundizando en la Palabra de Dios juntos'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400',
+                title: 'Oración Grupal',
+                description: 'Momento de intercesión y alabanza'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=400',
+                title: 'Actividad Social',
+                description: 'Compartiendo en comunidad y fortaleciendo lazos'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400',
+                title: 'Retiro Espiritual',
+                description: 'Fin de semana de renovación espiritual'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=400',
+                title: 'Celebración',
+                description: 'Celebrando las bendiciones recibidas'
+            }
+        ];
+        let expandedPhotoIndex = -1;
 
         // Inicializar carrusel
         function initCarousel() {
@@ -485,14 +851,40 @@
             const name = document.getElementById('cellName').value;
             const user = document.getElementById('cellUser').value;
             const password = document.getElementById('cellPassword').value;
+            const leader = document.getElementById('cellLeader').value;
+            const schedule = document.getElementById('cellSchedule').value;
+            const location = document.getElementById('cellLocation').value;
             
-            cells.push({ name, user, password });
+            // Generar fecha de próxima reunión basada en el horario
+            const nextMeeting = generateNextMeeting(schedule);
+            
+            const newCell = { 
+                name, 
+                user, 
+                password,
+                leader,
+                schedule,
+                location,
+                nextMeeting
+            };
+            
+            cells.push(newCell);
+            
+            // Inicializar array de miembros para la nueva célula
+            cellMembers[user] = [];
             
             const cellSelect = document.getElementById('cellSelect');
             const option = document.createElement('option');
             option.value = user;
             option.textContent = name;
             cellSelect.appendChild(option);
+            
+            // También agregar a la lista de registro de miembros
+            const memberCellSelect = document.getElementById('memberCell');
+            const memberOption = document.createElement('option');
+            memberOption.value = user;
+            memberOption.textContent = name;
+            memberCellSelect.appendChild(memberOption);
             
             document.getElementById('createModal').classList.add('hidden');
             document.getElementById('createForm').reset();
@@ -511,10 +903,187 @@
                 document.getElementById('accessModal').classList.add('hidden');
                 document.getElementById('cellView').classList.remove('hidden');
                 document.getElementById('accessForm').reset();
+                
+                // Actualizar información específica de la célula
+                updateCellInfo(window.selectedCell);
+                
+                // Actualizar lista de miembros con los registrados
+                updateMembersList(window.selectedCell.user);
             } else {
                 alert('Usuario o contraseña incorrectos');
             }
         };
+
+        // Mostrar/ocultar formulario de registro
+        document.getElementById('showFormBtn').onclick = () => {
+            document.getElementById('registerButton').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+        };
+
+        document.getElementById('cancelRegister').onclick = () => {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('registerButton').classList.remove('hidden');
+            document.getElementById('memberForm').reset();
+        };
+
+        // Registro de miembros
+        document.getElementById('memberForm').onsubmit = (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('memberName').value;
+            const phone = document.getElementById('memberPhone').value;
+            const address = document.getElementById('memberAddress').value;
+            const service = document.getElementById('memberService').value;
+            const cellId = document.getElementById('memberCell').value;
+            
+            // Crear objeto del miembro
+            const member = {
+                id: Date.now(),
+                name: name,
+                phone: phone,
+                address: address,
+                service: service,
+                joinDate: new Date().toLocaleDateString('es-ES')
+            };
+            
+            // Agregar a la célula correspondiente
+            cellMembers[cellId].push(member);
+            
+            // Limpiar formulario y volver al botón inicial
+            document.getElementById('memberForm').reset();
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('registerButton').classList.remove('hidden');
+            
+            // Mostrar confirmación
+            alert(`¡Registro exitoso! ${name} ha sido agregado a la ${cells.find(c => c.user === cellId).name}.`);
+        };
+
+        // Función para actualizar información específica de cada célula
+        function updateCellInfo(cell) {
+            // Actualizar información general con datos específicos de la célula
+            const infoSection = document.querySelector('#cellView .bg-gray-900 .space-y-6');
+            infoSection.innerHTML = `
+                <div class="flex justify-between items-center py-4 border-b border-gray-700">
+                    <span class="text-gray-400 text-lg">Líder:</span>
+                    <span class="text-white font-bold text-lg">${cell.leader}</span>
+                </div>
+                <div class="flex justify-between items-center py-4 border-b border-gray-700">
+                    <span class="text-gray-400 text-lg">Horario:</span>
+                    <span class="text-white font-bold text-lg">${cell.schedule}</span>
+                </div>
+                <div class="flex justify-between items-center py-4 border-b border-gray-700">
+                    <span class="text-gray-400 text-lg">Ubicación:</span>
+                    <span class="text-white font-bold text-lg">${cell.location}</span>
+                </div>
+                <div class="flex justify-between items-center py-4">
+                    <span class="text-gray-400 text-lg">Próxima Reunión:</span>
+                    <span class="text-white font-bold text-lg">${cell.nextMeeting}</span>
+                </div>
+            `;
+        }
+
+        // Función para actualizar la lista de miembros en la vista de célula
+        function updateMembersList(cellId) {
+            const membersList = document.getElementById('membersList');
+            const members = cellMembers[cellId] || [];
+            
+            // Limpiar lista actual
+            membersList.innerHTML = '';
+            
+            if (members.length === 0) {
+                // Mostrar mensaje cuando no hay miembros
+                membersList.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">👥</span>
+                        </div>
+                        <p class="text-gray-400 text-lg">No hay miembros registrados aún</p>
+                        <p class="text-gray-500 text-sm mt-2">Los nuevos miembros aparecerán aquí cuando se registren</p>
+                    </div>
+                `;
+            } else {
+                // Agregar miembros registrados
+                members.forEach(member => {
+                    const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    const colors = ['bg-red-600', 'bg-blue-600', 'bg-green-600', 'bg-yellow-600', 'bg-purple-600', 'bg-pink-600', 'bg-indigo-600'];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    const memberElement = document.createElement('div');
+                    memberElement.className = 'flex items-center justify-between bg-black rounded-lg p-4';
+                    memberElement.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 ${randomColor} rounded-full flex items-center justify-center">
+                                <span class="text-white font-bold">${initials}</span>
+                            </div>
+                            <div>
+                                <div class="text-white font-bold">${member.name}</div>
+                                <div class="text-gray-400 text-sm">${member.service}</div>
+                            </div>
+                        </div>
+                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    `;
+                    membersList.appendChild(memberElement);
+                });
+            }
+            
+            // Actualizar estadísticas
+            updateStatistics(cellId);
+        }
+        
+        // Función para actualizar estadísticas en tiempo real
+        function updateStatistics(cellId) {
+            const members = cellMembers[cellId] || [];
+            const totalMembers = members.length;
+            
+            // Actualizar contadores
+            document.getElementById('totalMembers').textContent = totalMembers;
+            document.getElementById('totalMeetings').textContent = Math.floor(totalMembers * 0.8); // Estimación basada en miembros
+            document.getElementById('newVisitors').textContent = Math.floor(totalMembers * 0.3); // 30% son visitantes nuevos
+            
+            // Calcular asistencia promedio
+            let attendance = 0;
+            if (totalMembers > 0) {
+                attendance = Math.min(95, 70 + (totalMembers * 2)); // Entre 70% y 95%
+            }
+            document.getElementById('attendance').textContent = attendance + '%';
+        }
+
+        // Función para generar próxima fecha de reunión
+        function generateNextMeeting(schedule) {
+            const today = new Date();
+            const days = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+            const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                          'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            
+            // Extraer día de la semana del horario
+            const scheduleLower = schedule.toLowerCase();
+            let targetDay = -1;
+            
+            days.forEach((day, index) => {
+                if (scheduleLower.includes(day)) {
+                    targetDay = index;
+                }
+            });
+            
+            if (targetDay === -1) {
+                // Si no se puede determinar el día, usar una fecha genérica
+                const nextWeek = new Date(today);
+                nextWeek.setDate(today.getDate() + 7);
+                return `${nextWeek.getDate()} de ${months[nextWeek.getMonth()]}`;
+            }
+            
+            // Calcular próxima fecha para ese día
+            const currentDay = today.getDay();
+            let daysUntilNext = targetDay - currentDay;
+            if (daysUntilNext <= 0) {
+                daysUntilNext += 7; // Próxima semana
+            }
+            
+            const nextMeeting = new Date(today);
+            nextMeeting.setDate(today.getDate() + daysUntilNext);
+            
+            return `${days[targetDay].charAt(0).toUpperCase() + days[targetDay].slice(1)} ${nextMeeting.getDate()} de ${months[nextMeeting.getMonth()]}`;
+        }
 
         // Pantalla de carga
         window.addEventListener('load', function() {
@@ -528,8 +1097,194 @@
             }, 3000);
         });
 
+        // Funciones de la galería
+        function initGallery() {
+            const container = document.getElementById('galleryContainer');
+            container.innerHTML = '';
+            
+            galleryPhotos.forEach((photo, index) => {
+                const card = document.createElement('div');
+                card.className = 'gallery-card stacked';
+                card.innerHTML = `<img src="${photo.url}" alt="${photo.title}" onerror="this.src='https://via.placeholder.com/400x300/333333/FFFFFF?text=${encodeURIComponent(photo.title)}'; this.alt='${photo.title}';">`;
+                
+                // Posicionamiento en pila
+                const rotation = (Math.random() - 0.5) * 20; // -10 a 10 grados
+                const offsetX = index * 3;
+                const offsetY = index * 2;
+                
+                card.style.setProperty('--rotation', `${rotation}deg`);
+                card.style.setProperty('--offset-x', `${offsetX}px`);
+                card.style.setProperty('--offset-y', `${offsetY}px`);
+                card.style.zIndex = galleryPhotos.length - index;
+                
+                card.onclick = () => togglePhotoExpansion(index);
+                container.appendChild(card);
+            });
+        }
+        
+        function togglePhotoExpansion(index) {
+            const cards = document.querySelectorAll('.gallery-card');
+            
+            if (expandedPhotoIndex === index) {
+                // Contraer - volver a la pila
+                expandedPhotoIndex = -1;
+                cards.forEach((card, i) => {
+                    card.classList.remove('expanded', 'hidden-card');
+                    card.classList.add('stacked');
+                });
+            } else {
+                // Expandir
+                expandedPhotoIndex = index;
+                cards.forEach((card, i) => {
+                    card.classList.remove('stacked');
+                    if (i === index) {
+                        card.classList.add('expanded');
+                        card.classList.remove('hidden-card');
+                    } else {
+                        card.classList.add('hidden-card');
+                        card.classList.remove('expanded');
+                    }
+                });
+            }
+        }
+        
+        function showExpandedView(index) {
+            const photo = galleryPhotos[index];
+            const expandedView = document.getElementById('expandedView');
+            const expandedImage = document.getElementById('expandedImage');
+            const expandedInfo = document.getElementById('expandedInfo');
+            
+            expandedImage.src = photo.url;
+            expandedImage.alt = photo.title;
+            expandedInfo.querySelector('h4').textContent = photo.title;
+            expandedInfo.querySelector('p').textContent = photo.description;
+            
+            expandedView.classList.remove('hidden');
+        }
+        
+        // Eventos de la galería
+        document.getElementById('addPhotoBtn').onclick = () => {
+            document.getElementById('addPhotoModal').classList.remove('hidden');
+        };
+        
+        document.getElementById('cancelAddPhoto').onclick = () => {
+            document.getElementById('addPhotoModal').classList.add('hidden');
+            document.getElementById('addPhotoForm').reset();
+        };
+        
+        document.getElementById('closeExpanded').onclick = () => {
+            document.getElementById('expandedView').classList.add('hidden');
+        };
+        
+        document.getElementById('addPhotoForm').onsubmit = (e) => {
+            e.preventDefault();
+            
+            const url = document.getElementById('photoUrl').value;
+            const title = document.getElementById('photoTitle').value;
+            const description = document.getElementById('photoDescription').value;
+            
+            galleryPhotos.push({ url, title, description });
+            initGallery();
+            
+            document.getElementById('addPhotoModal').classList.add('hidden');
+            document.getElementById('addPhotoForm').reset();
+            alert('¡Foto agregada exitosamente!');
+        };
+
         // Inicializar la aplicación
         initCarousel();
+        
+        // Funcionalidad de envío de mensajes
+        document.getElementById('messageForm').onsubmit = (e) => {
+            e.preventDefault();
+            
+            const subject = document.getElementById('messageSubject').value;
+            const content = document.getElementById('messageContent').value;
+            const currentCellId = window.selectedCell.user;
+            const members = cellMembers[currentCellId] || [];
+            
+            if (members.length === 0) {
+                alert('No hay miembros registrados en esta célula para enviar mensajes.');
+                return;
+            }
+            
+            // Crear mensaje completo
+            const fullMessage = `*${subject}*\n\n${content}\n\n_Mensaje enviado desde ${window.selectedCell.name}_`;
+            
+            // Generar enlaces de WhatsApp para cada miembro
+            let whatsappLinks = [];
+            members.forEach(member => {
+                // Limpiar número de teléfono (quitar espacios, guiones, etc.)
+                const cleanPhone = member.phone.replace(/\D/g, '');
+                const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(fullMessage)}`;
+                whatsappLinks.push({
+                    name: member.name,
+                    phone: member.phone,
+                    url: whatsappUrl
+                });
+            });
+            
+            // Mostrar modal con los enlaces generados
+            showWhatsAppLinks(whatsappLinks, subject);
+            
+            // Limpiar formulario
+            document.getElementById('messageForm').reset();
+        };
+        
+        // Función para mostrar los enlaces de WhatsApp
+        function showWhatsAppLinks(links, subject) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-6 z-50';
+            modal.innerHTML = `
+                <div class="bg-gray-900 rounded-xl p-8 max-w-2xl w-full max-h-96 overflow-y-auto border-2 border-gray-700">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-green-600 text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl font-bold">📱</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">Enviar "${subject}"</h3>
+                        <p class="text-gray-400">Haz clic en cada contacto para enviar el mensaje por WhatsApp</p>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        ${links.map(link => `
+                            <div class="flex items-center justify-between bg-black rounded-lg p-4">
+                                <div>
+                                    <div class="text-white font-bold">${link.name}</div>
+                                    <div class="text-gray-400 text-sm">${link.phone}</div>
+                                </div>
+                                <a href="${link.url}" target="_blank" rel="noopener noreferrer" 
+                                   class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all">
+                                    Enviar 📱
+                                </a>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="bg-green-900 border border-green-700 rounded-lg p-4 mb-6">
+                        <p class="text-green-200 text-sm">
+                            💡 <strong>Tip:</strong> Cada enlace abrirá WhatsApp con el mensaje pre-escrito. 
+                            Solo necesitas hacer clic en "Enviar" en cada conversación.
+                        </p>
+                    </div>
+                    
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            class="w-full bg-gray-700 text-white py-3 px-6 rounded-lg font-bold hover:bg-gray-600 transition-all">
+                        Cerrar
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // Inicializar galería cuando se abra una célula
+        document.getElementById('accessForm').addEventListener('submit', function(e) {
+            setTimeout(() => {
+                if (!document.getElementById('cellView').classList.contains('hidden')) {
+                    initGallery();
+                }
+            }, 100);
+        });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'984cce64c7f5c1ca',t:'MTc1ODgyNzI2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'984d11c5e6a5d930',t:'MTc1ODgzMDAyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
